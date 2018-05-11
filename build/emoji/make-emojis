@@ -5,17 +5,17 @@ require 'fileutils'
 require 'json'
 require 'open-uri'
 require 'sprite_factory'
-require 'emoji/extractor'
-require_relative './apple_emoji_extractor.rb'
-require_relative './unicode_emoji_helper.rb'
+# require 'emoji/extractor'
+# require_relative './apple_emoji_extractor.rb'
+# require_relative './unicode_emoji_helper.rb'
 
 project_root = "#{File.dirname(__FILE__)}/../../"
 
 emoji_path = File.join(project_root, 'images', 'emoji')
-if File.directory? emoji_path
-    FileUtils.remove_dir emoji_path
-end
-Dir.mkdir emoji_path
+# if File.directory? emoji_path
+#     FileUtils.remove_dir emoji_path
+# end
+# Dir.mkdir emoji_path
 
 Emoji.create('mattermost')
 FileUtils.cp(File.join(project_root, 'images', 'icon64x64.png'), File.join(emoji_path, 'mattermost.png'))
@@ -33,42 +33,42 @@ custom_aliases.each do |custom, original|
     end
 end
 
-### Extract and create all of the emoji skin tones ###
-unicode_emoji_helper = Mattermost::UnicodeEmojiHelper.new
-apple_extractor = Mattermost::AppleEmojiExtractor.new(64)
-emoji_added = []
+# ### Extract and create all of the emoji skin tones ###
+# unicode_emoji_helper = Mattermost::UnicodeEmojiHelper.new
+# apple_extractor = Mattermost::AppleEmojiExtractor.new(64)
+# emoji_added = []
 
-Emoji.all.clone.each do |emoji|
-  next unless emoji.raw
+# Emoji.all.clone.each do |emoji|
+#   next unless emoji.raw
 
-  sequences = unicode_emoji_helper.emoji_modifier_sequences(emoji.raw.split(''))
-  next unless sequences
-  sequences.each do |sequence|
-    pngbytes = apple_extractor.png(sequence)
-    print 'x' if pngbytes.nil?
-    next unless pngbytes
+#   sequences = unicode_emoji_helper.emoji_modifier_sequences(emoji.raw.split(''))
+#   next unless sequences
+#   sequences.each do |sequence|
+#     pngbytes = apple_extractor.png(sequence)
+#     print 'x' if pngbytes.nil?
+#     next unless pngbytes
 
-    modifier = sequence.split('')[1]
-    short_name = Mattermost::UnicodeEmojiHelper::SKIN_TONE_MAP[modifier]
-    new_name = "#{emoji.name}_#{short_name.gsub(/[\s-]/, '_')}"
-    new_emoji = Emoji.create(new_name) do |char|
-      char.category = 'skintone'
-      char.add_unicode_alias sequence
-    end
-    new_emoji.image_filename = "#{new_emoji.hex_inspect}.png"
+#     modifier = sequence.split('')[1]
+#     short_name = Mattermost::UnicodeEmojiHelper::SKIN_TONE_MAP[modifier]
+#     new_name = "#{emoji.name}_#{short_name.gsub(/[\s-]/, '_')}"
+#     new_emoji = Emoji.create(new_name) do |char|
+#       char.category = 'skintone'
+#       char.add_unicode_alias sequence
+#     end
+#     new_emoji.image_filename = "#{new_emoji.hex_inspect}.png"
 
-    fullpath = "#{emoji_path}/#{new_emoji.image_filename}"
-    unless File.file?(fullpath)
-      File.open(fullpath, 'wb') { |f| f.write pngbytes }
-    end
+#     fullpath = "#{emoji_path}/#{new_emoji.image_filename}"
+#     unless File.file?(fullpath)
+#       File.open(fullpath, 'wb') { |f| f.write pngbytes }
+#     end
 
-    print '.'
-    emoji_added << sequence
-  end
-end
+#     print '.'
+#     emoji_added << sequence
+#   end
+# end
 
-puts "\nThe following #{emoji_added.length} emoji were added:"
-print emoji_added
+# puts "\nThe following #{emoji_added.length} emoji were added:"
+# print emoji_added
 
 blacklist = ['basecamp', 'basecampy']
 
@@ -140,7 +140,7 @@ File.open(File.join(project_root, 'utils', 'emoji.jsx'), 'w') do |f|
     puts "\nwrote #{emojis.length} emojis to utils/emoji.jsx"
 end
 
-Emoji::Extractor.new(64, emoji_path).extract!
+# Emoji::Extractor.new(64, emoji_path).extract!
 
 Dir["#{Emoji.images_path}/*.png"].each do |png|
     if blacklist.include? File.basename(png, '.png')
